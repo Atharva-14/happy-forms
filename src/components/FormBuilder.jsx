@@ -41,7 +41,7 @@ const FormBuilder = () => {
   };
 
   return (
-    <div className="w-[576px] p-4 border rounded-3xl flex flex-col gap-y-2 border-gray-200">
+    <div className="w-[576px] p-4 border rounded-3xl flex flex-col gap-y-2 border-gray-200 bg-white">
       <div className="w-full flex flex-col gap-2">
         <div className="flex gap-2">
           <div className="w-full flex flex-col gap-1">
@@ -76,7 +76,6 @@ const FormBuilder = () => {
           </button>
         </div>
 
-        {/* Dynamic Input Rendering */}
         <div className="w-full">
           {selectedOption?.text === "Short answer" && (
             <input
@@ -111,7 +110,7 @@ const FormBuilder = () => {
                     onChange={(e) => handleRadioOptionChange(e, option.id)}
                     className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-gray-100 border-gray-100 focus:outline-none focus:ring-2 focus:ring-light"
                   />
-                  {/* Only show the Plus button on the last option */}
+
                   {index === radioOptions.length - 1 && (
                     <button
                       type="button"

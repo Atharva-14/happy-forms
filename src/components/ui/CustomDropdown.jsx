@@ -28,7 +28,7 @@ const CustomDropdown = ({ options, onSelect }) => {
   };
 
   return (
-    <div ref={dropdownRef} className="">
+    <div ref={dropdownRef} className="relative">
       <button
         type="button"
         onClick={toggleDropdown}
@@ -49,7 +49,7 @@ const CustomDropdown = ({ options, onSelect }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute mt-2 w-[300px] bg-white border rounded-3xl p-1 gap-2 b shadow-md border-gray-200">
+        <div className="absolute right-0 z-20 top-full mt-2 w-[300px] bg-white border rounded-3xl p-1 gap-2 shadow-md border-gray-200">
           <ul>
             <li className="px-4 py-2 rounded-lg gap-4 bg-gray-50 font-semibold">
               <p className="font-inter font-semibold text-xs tracking-[0.04em] text-gray-500">
