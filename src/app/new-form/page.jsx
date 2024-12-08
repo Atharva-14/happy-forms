@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { MdOutlineArrowOutward, MdCheck } from "react-icons/md";
+import { MdOutlineArrowOutward, MdCheck, MdAdd } from "react-icons/md";
 import { RiDraftLine } from "react-icons/ri";
-import { HiPlus } from "react-icons/hi";
 import FormBuilder from "@/components/FormBuilder";
 import PreviewModal from "@/components/PreviewModal";
 import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Page = () => {
   const [formBuilders, setFormBuilders] = useState([]);
   const [isDraftSaved, setIsDraftSaved] = useState(false);
   const [formTitle, setFormTitle] = useState(""); // Store the form title
+  const [isLoading, setIsLoading] = useState(false);
 
   const formBuilderRefs = useRef([]);
   const formTitleRef = useRef();
@@ -83,53 +85,70 @@ const Page = () => {
     );
 
     localStorage.setItem("formData", JSON.stringify(formData));
+
+    toast.success("Saved as Draft", {
+      position: "top-right",
+      autoClose: 800,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+    });
   };
 
   const handlePublish = () => {
-    // Get the current form data
-    const formData = {
-      formTitle: formTitleRef.current?.value || "Untitled Form",
-      questions: formBuilders.map((formBuilderRef, index) => {
-        const ref = formBuilderRefs.current[index];
-        return ref?.current?.getData() || {}; // Ensure each question has its data
-      }),
-    };
+    try {
+      // Validate the form data
+      const title = formTitleRef.current?.value.trim() || "Untitled Form";
+      if (!title) {
+        toast.error("Form title cannot be empty!");
+        return;
+      }
+      if (formBuilders.length === 0) {
+        toast.error("Form must have at least one question!");
+        return;
+      }
 
-    // Save the current form data with the key 'publishForm'
-    localStorage.setItem("publishForm", JSON.stringify(formData));
+      // Construct the form data
+      const formData = {
+        formTitle: title,
+        questions: formBuilders.map((_, index) => {
+          const ref = formBuilderRefs.current[index];
+          return ref?.current?.getData() || {}; // Ensure each question has its data
+        }),
+      };
 
-    // Create a unique ID for the form
-    const formId = Date.now().toString();
+      // Generate a unique ID and include it in the formData
+      const formId = Date.now().toString();
+      formData.id = formId;
+      formData.createdAt = new Date().toISOString();
 
-    // Retrieve the list of published forms from local storage
-    const publishedForms =
-      JSON.parse(localStorage.getItem("publishedForms")) || [];
+      // Save the current form data
+      localStorage.setItem("publishForm", JSON.stringify(formData));
 
-    // Add the new form to the list
-    const updatedPublishedForms = [
-      ...publishedForms,
-      {
-        id: formId,
-        title: formData.formTitle,
-        createdAt: new Date().toISOString(),
-      },
-    ];
+      // Update the list of published forms with the full formData
+      const publishedForms =
+        JSON.parse(localStorage.getItem("publishedForms")) || [];
+      const updatedPublishedForms = [...publishedForms, formData];
+      localStorage.setItem(
+        "publishedForms",
+        JSON.stringify(updatedPublishedForms)
+      );
 
-    // Save the updated list back to local storage
-    localStorage.setItem(
-      "publishedForms",
-      JSON.stringify(updatedPublishedForms)
-    );
+      // Clear draft and reset state
+      localStorage.removeItem("formData");
+      setFormBuilders([]);
+      setFormTitle("");
+      setIsDraftSaved(false);
+      formTitleRef.current.value = "";
 
-    // Clear the draft form data from local storage
-    localStorage.removeItem("formData");
-
-    // Reset state to clear the form UI
-    setFormBuilders([]);
-    setFormTitle("");
-    setIsDraftSaved(false);
-    formTitleRef.current.value = "";
-    router.push("/submit-form");
+      // Redirect to submit form page
+      router.push("/submit-form");
+    } catch (error) {
+      console.error("Error publishing form:", error);
+      toast.error("Failed to publish the form. Please try again.");
+    }
   };
 
   const isDisabled = formBuilders.length === 0;
@@ -192,7 +211,7 @@ const Page = () => {
                   onClick={handleAddQuestion}
                   className="relative z-0 w-fit sm:w-auto h-fit flex flex-row items-center border rounded-2xl py-1.5 pr-4 pl-3.5 gap-1 border-gray-200 max-w-xs sm:max-w-none"
                 >
-                  <HiPlus />
+                  <MdAdd />
                   <label className="font-semibold text-sm leading-5 text-center text-text-gray-1000 cursor-pointer">
                     Add Question
                   </label>
@@ -229,21 +248,25 @@ const Page = () => {
           </label>
         </button>
         <button
-          disabled={isDisabled}
+          disabled={isDisabled || isLoading}
           onClick={handlePublish}
           className={`w-fit h-fit flex flex-row items-center border rounded-2xl py-1.5 pr-4 pl-3.5 gap-1 ${
-            isDisabled
+            isDisabled || isLoading
               ? "bg-green-400 border-green-400 opacity-50 cursor-not-allowed"
               : "bg-[#00AA45] border-green-500 cursor-pointer"
           }`}
         >
-          <MdCheck className="text-white" />
+          {isLoading ? (
+            <div className="w-5 h-5 border-4 border-t-4 border-gray-200 border-t-[#00AA45] rounded-full animate-spin mr-3"></div>
+          ) : (
+            <MdCheck className="text-white" />
+          )}
           <label
             className={`text-center text-sm leading-5 font-semibold text-white ${
-              isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+              isDisabled || isLoading ? "cursor-not-allowed" : "cursor-pointer"
             }`}
           >
-            Publish Form
+            {isLoading ? "Publishing..." : "Publish Form"}
           </label>
         </button>
       </footer>
@@ -253,6 +276,7 @@ const Page = () => {
         content={formBuilders}
         formTitle={formTitle}
       />
+      <ToastContainer />
     </div>
   );
 };

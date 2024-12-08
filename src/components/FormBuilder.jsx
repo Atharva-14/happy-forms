@@ -23,8 +23,8 @@ const options = [
 const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
   const [selectedOption, setSelectedOption] = useState(() => ({
     ...(options.find((x) => x.text === questionData?.selectedOption) || {
-      text: "",
-      icon: null,
+      text: "Short answer",
+      icon: <HiMenuAlt4 />,
     }),
   }));
 
@@ -39,7 +39,6 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
   const longAnsInputRef = useRef();
   const urlInputRef = useRef();
   const numberInputRef = useRef();
-  const radioInputRefs = useRef([]);
 
   const handleSelect = (selected) => {
     setSelectedOption(selected);
@@ -50,6 +49,20 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
       option.id === id ? { ...option, text: e.target.value } : option
     );
     setRadioOptions(newOptions);
+  };
+
+  const handleAddRadioOption = () => {
+    setRadioOptions([
+      ...radioOptions,
+      {
+        id: Date.now(),
+        text: "",
+      },
+    ]);
+  };
+
+  const handleDeleteRadioOption = (id) => {
+    setRadioOptions(radioOptions.filter((option) => option.id !== id));
   };
 
   const handleSubmit = () => {
@@ -74,12 +87,15 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
 
   useEffect(() => {
     if (Object.keys(questionData).length > 0) {
-      titleInputRef.current.value = questionData.title;
-      helpTextInputRef.current.value = questionData.helpText;
+      titleInputRef.current.value = questionData.title || "";
+      helpTextInputRef.current.value = questionData.helpText || "";
+
+      // Load existing radio options if present
+      if (questionData.selectedOption === "Single select") {
+        setRadioOptions(questionData.radioOptions || []);
+      }
     }
   }, []);
-
-  console.log("Selected Option: ", selectedOption);
 
   return (
     <div className="w-[576px] p-4 border rounded-3xl flex flex-col gap-y-2 border-[#E1E4E8] bg-white">
@@ -139,6 +155,42 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
             />
           )}
 
+          {/* {selectedOption?.text === "Single select" && (
+            <div className="flex flex-col gap-2">
+              {radioOptions.map((option) => (
+                <div key={option.id} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="single-select"
+                    value={option.text}
+                    disabled
+                    className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
+                  />
+                  <input
+                    type="text"
+                    value={option.text}
+                    onChange={(e) => handleRadioOptionChange(e, option.id)}
+                    className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+                  />
+                  <button
+                    type="button"
+                    className="text-red-500"
+                    onClick={() => handleDeleteRadioOption(option.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="text-blue-500"
+                onClick={handleAddRadioOption}
+              >
+                <HiPlus />
+              </button>
+            </div>
+          )} */}
+
           {selectedOption?.text === "Single select" && (
             <div className="flex flex-col gap-2">
               {radioOptions.map((option, index) => (
@@ -148,7 +200,6 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
                     name="single-select"
                     value={option.text}
                     disabled
-                    ref={(el) => (radioInputRefs.current[index] = el)}
                     className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
                   />
                   <input
@@ -157,20 +208,20 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
                     onChange={(e) => handleRadioOptionChange(e, option.id)}
                     className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
                   />
-
+                  {index < radioOptions.length - 1 && (
+                    <button
+                      type="button"
+                      className="text-text-gray-1000 hover:text-red-500"
+                      onClick={() => handleDeleteRadioOption(option.id)}
+                    >
+                      ✕
+                    </button>
+                  )}
                   {index === radioOptions.length - 1 && (
                     <button
                       type="button"
-                      className="w-4 h-4"
-                      onClick={() =>
-                        setRadioOptions([
-                          ...radioOptions,
-                          {
-                            id: Date.now(),
-                            text: `Option ${radioOptions.length + 1}`,
-                          },
-                        ])
-                      }
+                      className="text-text-gray-1000 hover:text-[#00AA45]"
+                      onClick={handleAddRadioOption}
                     >
                       <HiPlus />
                     </button>

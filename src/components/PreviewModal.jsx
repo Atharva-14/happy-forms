@@ -75,7 +75,11 @@ const PreviewModal = ({ isOpen, onClose, content, formTitle }) => {
           <div className="flex flex-col items-center gap-10 p-6 w-full">
             <div className="flex flex-col items-center gap-8 w-full">
               {content.map((obj, index) => (
-                <FormPreview key={obj.id} data={obj?.questionData} />
+                <FormPreview
+                  key={obj.id}
+                  data={obj?.questionData}
+                  isPreview={true}
+                />
               ))}
             </div>
           </div>

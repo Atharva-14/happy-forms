@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const FormPreview = ({ data }) => {
+const FormPreview = ({ data, isPreview }) => {
   //   const [selectedOption, setSelectedOption] = useState(da);
 
   const titleInputRef = useRef();
@@ -47,7 +47,8 @@ const FormPreview = ({ data }) => {
             name="shortAnswer"
             ref={shortAnsInputRef}
             type="text"
-            readOnly
+            defaultValue={data?.shortAnswer || ""}
+            readOnly={isPreview}
             className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
         )}
@@ -57,7 +58,8 @@ const FormPreview = ({ data }) => {
             id="longAnswer"
             name="longAnswer"
             ref={longAnsInputRef}
-            readOnly
+            readOnly={isPreview}
+            defaultValue={data?.longAnswer || ""}
             className="w-full h-20 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
         )}
@@ -70,12 +72,12 @@ const FormPreview = ({ data }) => {
                   type="radio"
                   name="single-select"
                   value={option.text}
-                  disabled
+                  disabled={isPreview}
                   className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
                 />
                 <input
                   type="text"
-                  value={option.text}
+                  defaultValue={option.text}
                   readOnly
                   className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
                 />
@@ -90,7 +92,7 @@ const FormPreview = ({ data }) => {
             name="url"
             ref={urlInputRef}
             type="url"
-            readOnly
+            readOnly={isPreview}
             className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
         )}
@@ -101,7 +103,8 @@ const FormPreview = ({ data }) => {
             name="number"
             ref={numberInputRef}
             type="number"
-            readOnly
+            defaultValue={data?.number || ""}
+            readOnly={isPreview}
             className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
         )}
