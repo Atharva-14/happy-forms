@@ -9,8 +9,8 @@ const Page = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [isConfetti, setIsConfetti] = useState(false); // State to trigger confetti
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth); // Store the window width
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight); // Store the window height
+  const [windowWidth, setWindowWidth] = useState(0); // Initial value to 0 to avoid SSR issues
+  const [windowHeight, setWindowHeight] = useState(0); // Initial value to 0 to avoid SSR issues
   const router = useRouter(); // Initialize router for navigation
 
   // Update window dimensions on resize
@@ -20,12 +20,19 @@ const Page = () => {
       setWindowHeight(window.innerHeight);
     };
 
-    window.addEventListener("resize", handleResize);
+    // Only run the effect in the browser
+    if (typeof window !== "undefined") {
+      // Set initial window size
+      setWindowWidth(window.innerWidth);
+      setWindowHeight(window.innerHeight);
 
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+      window.addEventListener("resize", handleResize);
+
+      // Cleanup the event listener when the component unmounts
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -63,19 +70,20 @@ const Page = () => {
   return (
     <div className="h-screen sm:w-[640px] mx-auto flex flex-col items-center sm:px-4 relative">
       {/* Confetti Animation */}
-      {isConfetti && (
-        <Confetti
-          width={windowWidth} // Use dynamic window width
-          height={windowHeight} // Use dynamic window height
-          className="absolute top-0 left-0 z-10"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-      )}
+      {isConfetti &&
+        typeof window !== "undefined" && ( // Ensure window is defined before rendering Confetti
+          <Confetti
+            width={windowWidth} // Use dynamic window width
+            height={windowHeight} // Use dynamic window height
+            className="absolute top-0 left-0 z-10"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        )}
 
       <header className="w-full bg-white">
         <div className="mx-auto w-full max-w-4xl h-14 border-l border-r border-b flex flex-row justify-between items-center px-6 border-gray-200">

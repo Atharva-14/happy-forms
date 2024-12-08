@@ -95,7 +95,9 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
         setRadioOptions(questionData.radioOptions || []);
       }
     }
-  }, []);
+  }, [questionData]);
+
+  FormBuilder.displayName = "FormBuilder";
 
   return (
     <div className="w-[576px] p-4 border rounded-3xl flex flex-col gap-y-2 border-[#E1E4E8] bg-white">
