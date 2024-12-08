@@ -16,6 +16,11 @@ module.exports = {
       fontFamily: {
         inter: ["Inter", "sans-serif"],
       },
+      boxShadow: {
+        "custom-lg": "0px 12px 12px -6px rgba(0, 0, 0, 0.03)",
+        "custom-md": "0px 6px 6px -3px rgba(0, 0, 0, 0.03)",
+        "custom-sm": "0px 3px 3px -1.5px rgba(0, 0, 0, 0.03)",
+      },
     },
   },
   plugins: [],

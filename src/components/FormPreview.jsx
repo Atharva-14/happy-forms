@@ -15,7 +15,7 @@ const FormPreview = ({ data }) => {
   //     setSelectedOption(data.selectedOption);
   //   }, []);
 
-  //   console.log(data);
+  console.log(data);
 
   return (
     <div className="w-full flex flex-col gap-1">
@@ -47,6 +47,7 @@ const FormPreview = ({ data }) => {
             name="shortAnswer"
             ref={shortAnsInputRef}
             type="text"
+            readOnly
             className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
         )}
@@ -56,8 +57,31 @@ const FormPreview = ({ data }) => {
             id="longAnswer"
             name="longAnswer"
             ref={longAnsInputRef}
+            readOnly
             className="w-full h-20 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
+        )}
+
+        {data?.selectedOption === "Single select" && (
+          <div className="flex flex-col gap-2">
+            {data.radioOptions.map((option) => (
+              <div key={option.id} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="single-select"
+                  value={option.text}
+                  disabled
+                  className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
+                />
+                <input
+                  type="text"
+                  value={option.text}
+                  readOnly
+                  className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+                />
+              </div>
+            ))}
+          </div>
         )}
 
         {data?.selectedOption === "URL" && (
@@ -66,6 +90,7 @@ const FormPreview = ({ data }) => {
             name="url"
             ref={urlInputRef}
             type="url"
+            readOnly
             className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
         )}
@@ -76,6 +101,7 @@ const FormPreview = ({ data }) => {
             name="number"
             ref={numberInputRef}
             type="number"
+            readOnly
             className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
           />
         )}

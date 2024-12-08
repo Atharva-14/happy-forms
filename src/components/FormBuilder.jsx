@@ -12,11 +12,21 @@ import { MdOutlineRadioButtonChecked, MdOutlineNumbers } from "react-icons/md";
 import { RiLink, RiDraggable } from "react-icons/ri";
 import { HiMenuAlt2, HiMenuAlt4, HiPlus } from "react-icons/hi";
 
+const options = [
+  { text: "Short answer", icon: <HiMenuAlt4 /> },
+  { text: "Long answer", icon: <HiMenuAlt2 /> },
+  { text: "Single select", icon: <MdOutlineRadioButtonChecked /> },
+  { text: "URL", icon: <RiLink /> },
+  { text: "Number", icon: <MdOutlineNumbers /> },
+];
+
 const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
-  const [selectedOption, setSelectedOption] = useState({
-    text: "Short answer",
-    icon: <HiMenuAlt4 />,
-  });
+  const [selectedOption, setSelectedOption] = useState(() => ({
+    ...(options.find((x) => x.text === questionData?.selectedOption) || {
+      text: "",
+      icon: null,
+    }),
+  }));
 
   const [radioOptions, setRadioOptions] = useState([
     { id: Date.now(), text: "" },
@@ -30,14 +40,6 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
   const urlInputRef = useRef();
   const numberInputRef = useRef();
   const radioInputRefs = useRef([]);
-
-  const options = [
-    { text: "Short answer", icon: <HiMenuAlt4 /> },
-    { text: "Long answer", icon: <HiMenuAlt2 /> },
-    { text: "Single select", icon: <MdOutlineRadioButtonChecked /> },
-    { text: "URL", icon: <RiLink /> },
-    { text: "Number", icon: <MdOutlineNumbers /> },
-  ];
 
   const handleSelect = (selected) => {
     setSelectedOption(selected);
@@ -58,16 +60,8 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
       selectedOption: selectedOption.text,
     };
 
-    if (selectedOption.text === "Short answer") {
-      formData.shortAnswer = shortAnsInputRef.current.value;
-    } else if (selectedOption.text === "Long answer") {
-      formData.longAnswer = longAnsInputRef.current.value;
-    } else if (selectedOption.text === "Single select") {
+    if (selectedOption.text === "Single select") {
       formData.radioOptions = radioOptions.map((option) => option);
-    } else if (selectedOption.text === "URL") {
-      formData.url = urlInputRef.current.value;
-    } else if (selectedOption.text === "Number") {
-      formData.number = numberInputRef.current.value;
     }
 
     console.log("Form Data: ", formData);
@@ -84,6 +78,8 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
       helpTextInputRef.current.value = questionData.helpText;
     }
   }, []);
+
+  console.log("Selected Option: ", selectedOption);
 
   return (
     <div className="w-[576px] p-4 border rounded-3xl flex flex-col gap-y-2 border-[#E1E4E8] bg-white">
@@ -109,7 +105,11 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
           </div>
 
           <div className="flex items-center ">
-            <CustomDropdown options={options} onSelect={handleSelect} />
+            <CustomDropdown
+              options={options}
+              onSelect={handleSelect}
+              selOpt={selectedOption}
+            />
           </div>
 
           <button className="text-gray-500 cursor-move">
@@ -124,6 +124,7 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
               name="shortAnswer"
               ref={shortAnsInputRef}
               type="text"
+              readOnly
               className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
             />
           )}
@@ -133,6 +134,7 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
               id="longAnswer"
               name="longAnswer"
               ref={longAnsInputRef}
+              readOnly
               className="w-full h-20 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
             />
           )}
@@ -145,6 +147,7 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
                     type="radio"
                     name="single-select"
                     value={option.text}
+                    disabled
                     ref={(el) => (radioInputRefs.current[index] = el)}
                     className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
                   />
@@ -183,6 +186,7 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
               name="url"
               ref={urlInputRef}
               type="url"
+              readOnly
               className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
             />
           )}
@@ -193,6 +197,7 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
               name="number"
               ref={numberInputRef}
               type="number"
+              readOnly
               className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
             />
           )}

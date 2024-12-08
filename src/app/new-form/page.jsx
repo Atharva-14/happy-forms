@@ -165,36 +165,40 @@ const Page = () => {
         </div>
       </header>
 
-      <main className="relative w-full max-w-4xl flex flex-col items-center px-4 border-l border-r flex-grow ">
-        <div className="flex flex-col items-center gap-6 pt-6 w-full">
-          <div className="flex flex-col items-center gap-4 w-full">
-            {formBuilders.map((formBuilder, index) => (
-              <div
-                key={formBuilder.id}
-                className="relative w-full flex justify-center"
-              >
-                <FormBuilder
-                  id={formBuilder.id}
-                  ref={
-                    formBuilderRefs.current[index] ||
-                    (formBuilderRefs.current[index] = React.createRef())
-                  }
-                  questionData={formBuilder.questionData}
-                />
+      <main className="w-full max-w-4xl flex flex-col items-center border-l border-r flex-grow ">
+        <div className="flex h-max flex-col items-center gap-6 pt-6 w-full">
+          <div className="gap-6">
+            <div className="pt-6 gap-8">
+              <div className="flex flex-col items-center gap-4 w-full">
+                {formBuilders.map((formBuilder, index) => (
+                  <div
+                    key={formBuilder.id}
+                    className="relative w-full flex justify-center"
+                  >
+                    <FormBuilder
+                      id={formBuilder.id}
+                      ref={
+                        formBuilderRefs.current[index] ||
+                        (formBuilderRefs.current[index] = React.createRef())
+                      }
+                      questionData={formBuilder.questionData}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <div className="py-2 px-4">
-            <button
-              onClick={handleAddQuestion}
-              className="relative z-0 w-fit sm:w-auto h-fit flex flex-row items-center border rounded-2xl py-1.5 pr-4 pl-3.5 gap-1 border-gray-200 max-w-xs sm:max-w-none"
-            >
-              <HiPlus />
-              <label className="font-semibold text-sm leading-5 text-center text-text-gray-1000 cursor-pointer">
-                Add Question
-              </label>
-            </button>
+              <div className="w-full flex flex-row justify-center items-center py-2 px-4">
+                <button
+                  onClick={handleAddQuestion}
+                  className="relative z-0 w-fit sm:w-auto h-fit flex flex-row items-center border rounded-2xl py-1.5 pr-4 pl-3.5 gap-1 border-gray-200 max-w-xs sm:max-w-none"
+                >
+                  <HiPlus />
+                  <label className="font-semibold text-sm leading-5 text-center text-text-gray-1000 cursor-pointer">
+                    Add Question
+                  </label>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -247,7 +251,7 @@ const Page = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         content={formBuilders}
-        formTitle={formTitle} // Pass formTitle to the modal
+        formTitle={formTitle}
       />
     </div>
   );

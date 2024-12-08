@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { IoIosArrowDown } from "react-icons/io";
 
-const CustomDropdown = ({ options, onSelect }) => {
+const CustomDropdown = ({ options, onSelect, selOpt }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(options[0]);
+  const [selectedOption, setSelectedOption] = useState(
+    selOpt ? selOpt : options[0]
+  );
+
   const dropdownRef = useRef(null);
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
