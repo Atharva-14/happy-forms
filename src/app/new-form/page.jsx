@@ -1,16 +1,135 @@
 "use client";
 
-import { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { MdOutlineArrowOutward, MdCheck } from "react-icons/md";
 import { RiDraftLine } from "react-icons/ri";
 import { HiPlus } from "react-icons/hi";
 import FormBuilder from "@/components/FormBuilder";
+import PreviewModal from "@/components/PreviewModal";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const [formBuilders, setFormBuilders] = useState([]);
+  const [isDraftSaved, setIsDraftSaved] = useState(false);
+  const [formTitle, setFormTitle] = useState(""); // Store the form title
 
+  const formBuilderRefs = useRef([]);
+  const formTitleRef = useRef();
+  const router = useRouter();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setFormTitle(formTitleRef.current?.value || "Untitled Form"); // Set the form title when opening the modal
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  // Load saved form data and draft status
+  useEffect(() => {
+    const savedFormData = localStorage.getItem("formData");
+    const draftSavedFlag = localStorage.getItem("isDraftSaved");
+
+    if (savedFormData) {
+      const { formTitle, questions } = JSON.parse(savedFormData);
+      formTitleRef.current.value = formTitle;
+      setFormTitle(formTitle); // Set the form title from saved data
+
+      setFormBuilders(
+        questions.map((questionData) => ({
+          id: questionData?.id,
+          questionData,
+        }))
+      );
+    }
+
+    setIsDraftSaved(draftSavedFlag === "true");
+  }, []);
+
+  // Add a new question to the form
   const handleAddQuestion = () => {
-    setFormBuilders((prev) => [...prev, { id: Date.now() }]);
+    const newId = Date.now().toString();
+    const newFormBuilder = { id: newId, questionData: {} }; // Add empty question data
+    setFormBuilders((prev) => [...prev, newFormBuilder]);
+    formBuilderRefs.current.push(React.createRef());
+  };
+
+  // Save form as a draft
+  const handleSaveAsDraft = () => {
+    if (formBuilders.length > 0) {
+      setIsDraftSaved(true);
+      localStorage.setItem("isDraftSaved", "true");
+    }
+
+    const updatedAllData = formBuilderRefs.current.map((formBuilderRef) => {
+      if (formBuilderRef.current) {
+        return formBuilderRef.current.getData(); // Ensure `getData` is defined in your `FormBuilder`
+      }
+      return null;
+    });
+
+    const formData = {
+      formTitle: formTitleRef.current?.value || "Untitled Form",
+      questions: updatedAllData.filter((data) => data !== null), // Filter out any null data
+    };
+
+    // Directly update the formBuilders state with the updated data
+    setFormBuilders(
+      formData.questions.map((questionData, index) => ({
+        id: questionData?.id || Date.now().toString(), // Ensure each question has a unique id
+        questionData,
+      }))
+    );
+
+    localStorage.setItem("formData", JSON.stringify(formData));
+  };
+
+  const handlePublish = () => {
+    // Get the current form data
+    const formData = {
+      formTitle: formTitleRef.current?.value || "Untitled Form",
+      questions: formBuilders.map((formBuilderRef, index) => {
+        const ref = formBuilderRefs.current[index];
+        return ref?.current?.getData() || {}; // Ensure each question has its data
+      }),
+    };
+
+    // Save the current form data with the key 'publishForm'
+    localStorage.setItem("publishForm", JSON.stringify(formData));
+
+    // Create a unique ID for the form
+    const formId = Date.now().toString();
+
+    // Retrieve the list of published forms from local storage
+    const publishedForms =
+      JSON.parse(localStorage.getItem("publishedForms")) || [];
+
+    // Add the new form to the list
+    const updatedPublishedForms = [
+      ...publishedForms,
+      {
+        id: formId,
+        title: formData.formTitle,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+
+    // Save the updated list back to local storage
+    localStorage.setItem(
+      "publishedForms",
+      JSON.stringify(updatedPublishedForms)
+    );
+
+    // Clear the draft form data from local storage
+    localStorage.removeItem("formData");
+
+    // Reset state to clear the form UI
+    setFormBuilders([]);
+    setFormTitle("");
+    setIsDraftSaved(false);
+    formTitleRef.current.value = "";
+    router.push("/submit-form");
   };
 
   const isDisabled = formBuilders.length === 0;
@@ -22,16 +141,19 @@ const Page = () => {
           <input
             className="focus:outline-none gap-2 w-full sm:w-auto h-fit font-semibold text-base leading-[22px]"
             placeholder="Untitled form"
+            ref={formTitleRef}
+            onChange={() => setFormTitle(formTitleRef.current.value)} // Update form title state on input change
           />
           <button
-            disabled={isDisabled}
+            disabled={!isDraftSaved}
+            onClick={handleOpenModal}
             className={`w-fit h-fit flex flex-row items-center gap-1 border rounded-2xl border-gray-200 py-1.5 px-3.5 ${
-              isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              !isDraftSaved ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
             }`}
           >
             <label
               className={`text-center text-xs leading-5 font-semibold ${
-                isDisabled
+                !isDraftSaved
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-text-gray-1000 cursor-pointer"
               }`}
@@ -46,12 +168,19 @@ const Page = () => {
       <main className="relative w-full max-w-4xl flex flex-col items-center px-4 border-l border-r flex-grow ">
         <div className="flex flex-col items-center gap-6 pt-6 w-full">
           <div className="flex flex-col items-center gap-4 w-full">
-            {formBuilders.map((formBuilder) => (
+            {formBuilders.map((formBuilder, index) => (
               <div
                 key={formBuilder.id}
                 className="relative w-full flex justify-center"
               >
-                <FormBuilder />
+                <FormBuilder
+                  id={formBuilder.id}
+                  ref={
+                    formBuilderRefs.current[index] ||
+                    (formBuilderRefs.current[index] = React.createRef())
+                  }
+                  questionData={formBuilder.questionData}
+                />
               </div>
             ))}
           </div>
@@ -72,12 +201,19 @@ const Page = () => {
 
       <footer className="w-full max-w-4xl h-14 border-t border-l border-r py-4 px-6 bg-gray-200 bg-[#F6F8FAE5] backdrop-blur-sm flex flex-row justify-between items-center">
         <button
+          onClick={handleSaveAsDraft}
           disabled={isDisabled}
-          className={`w-fit h-fit flex flex-row items-center border rounded-2xl py-1.5 pr-4 pl-3.5 gap-1 border-gray-200 ${
-            isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+          className={`w-fit h-fit flex flex-row items-center border rounded-2xl py-1.5 pr-4 pl-3.5 gap-1 bg-white border-[#E1E4E8] ${
+            isDisabled ? "cursor-not-allowed" : "cursor-pointer"
           }`}
         >
-          <RiDraftLine />
+          <RiDraftLine
+            className={`${
+              isDisabled
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-text-gray-1000 cursor-pointer"
+            }`}
+          />
           <label
             className={`text-center text-sm leading-5 font-semibold ${
               isDisabled
@@ -85,11 +221,12 @@ const Page = () => {
                 : "text-text-gray-1000 cursor-pointer"
             }`}
           >
-            Save a Draft
+            Save as Draft
           </label>
         </button>
         <button
           disabled={isDisabled}
+          onClick={handlePublish}
           className={`w-fit h-fit flex flex-row items-center border rounded-2xl py-1.5 pr-4 pl-3.5 gap-1 ${
             isDisabled
               ? "bg-green-400 border-green-400 opacity-50 cursor-not-allowed"
@@ -106,6 +243,12 @@ const Page = () => {
           </label>
         </button>
       </footer>
+      <PreviewModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        content={formBuilders}
+        formTitle={formTitle} // Pass formTitle to the modal
+      />
     </div>
   );
 };
