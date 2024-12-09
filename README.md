@@ -45,6 +45,8 @@ Here are some glimpses of **Happy Forms** in action:
 ### 4. **Success Message**
 ![Success Message Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-submit.png)
 
+**The complete UI of the web app is pixel-perfect and can be accessed seamlessly from any device using [this link](https://happy-forms.vercel.app/).**
+
 ## Technologies Used
 
 - **Frontend**: Next.js with Tailwind CSS for styling.
