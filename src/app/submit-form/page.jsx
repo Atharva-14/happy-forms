@@ -11,6 +11,7 @@ const Page = () => {
   const [isConfetti, setIsConfetti] = useState(false); // State to trigger confetti
   const [windowWidth, setWindowWidth] = useState(0); // Initial value to 0 to avoid SSR issues
   const [windowHeight, setWindowHeight] = useState(0); // Initial value to 0 to avoid SSR issues
+  const [answers, setAnswers] = useState({}); // Store user answers
   const router = useRouter(); // Initialize router for navigation
 
   // Update window dimensions on resize
@@ -45,13 +46,34 @@ const Page = () => {
     }
   }, []);
 
+  const handleAnswerChange = (questionId, answer) => {
+    // Update the formData with the user's answer for the respective question
+    setFormData((prevFormData) => {
+      // Clone the existing formData
+      const updatedFormData = { ...prevFormData };
+
+      // Find the question that matches the questionId and update its answer
+      updatedFormData.questions = updatedFormData.questions.map((question) =>
+        question.id === questionId ? { ...question, answer: answer } : question
+      );
+
+      return updatedFormData;
+    });
+  };
+
   const handleSubmit = () => {
     // Get the existing submittedForms from localStorage or initialize an empty array
     const submittedForms =
       JSON.parse(localStorage.getItem("submittedForms")) || [];
 
-    // Add the current form data to the submittedForms list
-    submittedForms.push(formData);
+    // Add the current form data (including answers) to the submittedForms list
+    const formWithAnswers = { ...formData };
+
+    // Log the form data with answers for debugging
+    console.log(formWithAnswers);
+
+    // Push the new form data with answers to the submitted forms list
+    submittedForms.push(formWithAnswers);
 
     // Save the updated list back to localStorage
     localStorage.setItem("submittedForms", JSON.stringify(submittedForms));
@@ -63,7 +85,7 @@ const Page = () => {
     // Set a timeout to hide the success popup and redirect to home after a few seconds
     setTimeout(() => {
       setShowSuccessPopup(false);
-      router.push("/"); // Redirect to the home page
+      // router.push("/"); // Redirect to the home page
     }, 6000); // Stay on the page for 6 seconds before redirecting
   };
 
@@ -113,6 +135,7 @@ const Page = () => {
                   key={question.id}
                   data={question}
                   isPreview={false}
+                  onAnswerChange={handleAnswerChange} // Pass the handler to capture the user's answers
                 />
               ))}
           </div>
@@ -121,7 +144,7 @@ const Page = () => {
           {showSuccessPopup && (
             <div className="w-full flex flex-col justify-center items-center bg-blue-800 text-white border-4 border-blue-400 rounded-lg text-lg font-bold p-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
               <div className="text-4xl font-extrabold animate__animated animate__zoomIn animate__delay-1s">
-                🏆 YOU DID IT! 🏆
+                YOU DID IT!
               </div>
               <div className="text-xl animate__animated animate__fadeIn animate__delay-2s">
                 Your form has been successfully submitted!
