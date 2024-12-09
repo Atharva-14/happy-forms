@@ -135,16 +135,26 @@ const Page = () => {
 
   const handlePublish = () => {
     try {
+      // Start loading
+      setIsLoading(true);
+
       const title = formTitleRef.current?.value.trim() || "Untitled Form";
-      if (!title) {
+
+      // Check if the title is empty
+      if (!title || title === "Untitled Form") {
         toast.error("Form title cannot be empty!");
-        return;
-      }
-      if (formBuilders.length === 0) {
-        toast.error("Form must have at least one question!");
+        setIsLoading(false); // Stop loading
         return;
       }
 
+      // Check if there are no questions in the form
+      if (formBuilders.length === 0) {
+        toast.error("Form must have at least one question!");
+        setIsLoading(false); // Stop loading
+        return;
+      }
+
+      // Prepare form data
       const formData = {
         formTitle: title,
         questions: formBuilders.map((_, index) => {
@@ -153,12 +163,15 @@ const Page = () => {
         }),
       };
 
+      // Generate a unique form ID and timestamp
       const formId = Date.now().toString();
       formData.id = formId;
       formData.createdAt = new Date().toISOString();
 
+      // Save the form data temporarily
       localStorage.setItem("publishForm", JSON.stringify(formData));
 
+      // Update published forms list in localStorage
       const publishedForms =
         JSON.parse(localStorage.getItem("publishedForms")) || [];
       const updatedPublishedForms = [...publishedForms, formData];
@@ -167,16 +180,21 @@ const Page = () => {
         JSON.stringify(updatedPublishedForms)
       );
 
+      // Clear the draft form data
       localStorage.removeItem("formData");
       setFormBuilders([]);
       setFormTitle("");
       setIsDraftSaved(false);
       formTitleRef.current.value = "";
 
-      router.push("/submit-form");
+      // Simulate loading time before navigating
+      setTimeout(() => {
+        router.push("/submit-form");
+      }, 1000); // Adjust the delay as needed
     } catch (error) {
       console.error("Error publishing form:", error);
       toast.error("Failed to publish the form. Please try again.");
+      setIsLoading(false); // Stop loading in case of error
     }
   };
 
@@ -191,6 +209,7 @@ const Page = () => {
             className="focus:outline-none w-full sm:w-auto h-fit font-semibold text-base"
             placeholder="Untitled form"
             ref={formTitleRef}
+            required
             onChange={() => setFormTitle(formTitleRef.current.value)}
           />
 
@@ -263,6 +282,7 @@ const Page = () => {
         <button
           onClick={handlePublish}
           disabled={isDisabled || isLoading}
+          type="submit"
           className={`flex items-center border rounded-2xl py-1.5 pr-4 pl-3.5 text-white gap-1 ${
             isDisabled || isLoading
               ? "bg-green-400 opacity-50 cursor-not-allowed"

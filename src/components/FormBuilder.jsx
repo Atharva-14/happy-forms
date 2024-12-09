@@ -77,7 +77,6 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
       formData.radioOptions = radioOptions.map((option) => option);
     }
 
-    console.log("Form Data: ", formData);
     return formData;
   };
 
