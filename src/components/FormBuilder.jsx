@@ -100,9 +100,9 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
   FormBuilder.displayName = "FormBuilder";
 
   return (
-    <div className="w-[576px] p-4 border rounded-3xl flex flex-col gap-y-2 border-[#E1E4E8] bg-white">
+    <div className="w-full  p-4 border rounded-3xl flex flex-col gap-2 border-[#E1E4E8] bg-white">
       <div className="w-full flex flex-col gap-2">
-        <div className="flex gap-2">
+        <div className="flex flex-row gap-2 ">
           <div className="w-full flex flex-col gap-1">
             <input
               type="text"
@@ -110,7 +110,7 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
               name="title"
               ref={titleInputRef}
               placeholder="Write a question"
-              className="font-inter text-sm font-semibold leading-5 text-left focus:outline-none text-gray-1000"
+              className="font-inter text-sm font-semibold leading-5 text-left focus:outline-none text-gray-1000 w-full"
             />
             <input
               type="text"
@@ -118,11 +118,11 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
               name="helpText"
               ref={helpTextInputRef}
               placeholder="Write a help text or caption (leave empty if not needed)."
-              className="font-inter text-xs font-normal leading-4 text-left focus:outline-none text-gray-1000"
+              className="font-inter text-xs font-normal leading-4 text-left focus:outline-none text-gray-1000 w-full"
             />
           </div>
 
-          <div className="flex items-center ">
+          <div className="flex items-center">
             <CustomDropdown
               options={options}
               onSelect={handleSelect}
@@ -130,12 +130,12 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
             />
           </div>
 
-          <button className="text-gray-500 cursor-move">
+          <button className="text-gray-500 cursor-move md:ml-2">
             <RiDraggable />
           </button>
         </div>
 
-        <div className="w-full">
+        <div className="w-full flex flex-col gap-2">
           {selectedOption?.text === "Short answer" && (
             <input
               id="shortAnswer"
@@ -156,42 +156,6 @@ const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
               className="w-full h-20 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
             />
           )}
-
-          {/* {selectedOption?.text === "Single select" && (
-            <div className="flex flex-col gap-2">
-              {radioOptions.map((option) => (
-                <div key={option.id} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="single-select"
-                    value={option.text}
-                    disabled
-                    className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
-                  />
-                  <input
-                    type="text"
-                    value={option.text}
-                    onChange={(e) => handleRadioOptionChange(e, option.id)}
-                    className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-                  />
-                  <button
-                    type="button"
-                    className="text-red-500"
-                    onClick={() => handleDeleteRadioOption(option.id)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="text-blue-500"
-                onClick={handleAddRadioOption}
-              >
-                <HiPlus />
-              </button>
-            </div>
-          )} */}
 
           {selectedOption?.text === "Single select" && (
             <div className="flex flex-col gap-2">
