@@ -1,4 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Happy Forms
+
+Welcome to **Happy Forms**, a web application that allows user to create, preview, and submit custom form interactively. The application is hosted at [Happy Forms](https://happy-forms.vercel.app/).
+#### [Live] (Happy Forms)  [https://happy-forms.vercel.app/](https://happy-forms.vercel.app/)
+
+
+## Features
+
+1. **Custom FormCreation**:
+   - Start with an empty form.
+   - Add questions with support for five input types:
+       - Short Answer
+       - Long Answer
+       - Single Select
+       - Number
+       - URL
+    - Intuitive UI
+
+2. **Form Preview**:
+   - View the live preview of the created form before filling it out.
+  
+3. **Form Filling with Progress Tracking**:
+   - Users can fill out the form.
+   - Real-time progress tracking shows the percentage of fields filled.
+
+4. **Form Submission**:
+   - Display a success message upon completing and submitting form.
+
+5. **Interactive UI**:
+   - Soomth animation and feedback on actions enhance the user experience.
+
+## Screenshots
+
+Here are some glimpses of **Happy Forms** in action:
+
+### 1. **Form Creation**
+![Form Creation Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/new-form.png)
+
+### 2. **Form Preview**
+![Form Preview Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-preview.png)
+
+### 3. **Form Filling with Progress**
+![Form Filling Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-submission.png)
+
+### 4. **Success Message**
+![Success Message Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-submit.png)
+
+**The complete UI of the web app is pixel-perfect and can be accessed seamlessly from any device using [this link](https://happy-forms.vercel.app/).**
+
+## Technologies Used
+
+- **Frontend**: Next.js with Tailwind CSS for styling.
+- **Hosting**: Vercel.
+
 
 ## Getting Started
 
