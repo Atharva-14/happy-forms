@@ -54,6 +54,8 @@ Here are some glimpses of **Happy Forms** in action:
 
 - **Frontend**: Next.js with Tailwind CSS for styling.
 - **Hosting**: Vercel.
+- **Data Handling**: Currently, the form data is saved in the **local storage** of the browser for simplicity.  
+We can integrate this project with an API to store the form data on a server, can easily be updated to include API requests for form persistence and retrieval.
 
 
 ## Getting Started
