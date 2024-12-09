@@ -47,8 +47,8 @@ Here are some glimpses of **Happy Forms** in action:
 
 ## Technologies Used
 
--**Frontend**: Next.js with Tailwind CSS for styling.
--**Hosting**: Vercel.
+- **Frontend**: Next.js with Tailwind CSS for styling.
+- **Hosting**: Vercel.
 
 
 ## Getting Started
