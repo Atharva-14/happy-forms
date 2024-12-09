@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import Confetti from "react-confetti"; // Importing the confetti package
 
 const Page = () => {
-  const [formData, setFormData] = useState();
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState(null); // Ensure formData is initially null
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [isConfetti, setIsConfetti] = useState(false); // State to trigger confetti
   const [windowWidth, setWindowWidth] = useState(0); // Initial value to 0 to avoid SSR issues
@@ -23,9 +22,7 @@ const Page = () => {
       setWindowHeight(window.innerHeight);
     };
 
-    // Only run the effect in the browser
     if (typeof window !== "undefined") {
-      // Set initial window size
       setWindowWidth(window.innerWidth);
       setWindowHeight(window.innerHeight);
 
@@ -43,37 +40,25 @@ const Page = () => {
 
     if (publishData) {
       const data = JSON.parse(publishData);
-
       setFormData(data);
     }
   }, []);
 
   // Handle answer change
   const handleAnswerChange = (questionId, answer) => {
-    // Update the formData with the user's answer for the respective question
     setFormData((prevFormData) => {
-      // Clone the existing formData
       const updatedFormData = { ...prevFormData };
 
-      // Find the question that matches the questionId and update its answer
       updatedFormData.questions = updatedFormData.questions.map((question) =>
         question.id === questionId ? { ...question, answer: answer } : question
       );
 
-      // Update the answers state with the latest answer
       setAnswers((prevAnswers) => {
-        // Check if the answer is the same as the previous one (for increment logic)
-        const isSameAnswer = prevAnswers[questionId] === answer;
         const updatedAnswers = {
           ...prevAnswers,
           [questionId]: answer,
         };
-
-        // If it's the same answer, keep track of it for progress calculation
-        if (isSameAnswer) {
-          updateProgress(updatedAnswers); // Update progress immediately
-        }
-
+        updateProgress(updatedAnswers);
         return updatedAnswers;
       });
 
@@ -94,27 +79,20 @@ const Page = () => {
   };
 
   const handleSubmit = () => {
-    // Set isSubmitting to true to disable the submit button
     setIsSubmitting(true);
 
-    // Get the existing submittedForms from localStorage or initialize an empty array
     const submittedForms =
       JSON.parse(localStorage.getItem("submittedForms")) || [];
 
-    // Add the current form data (including answers) to the submittedForms list
     const formWithAnswers = { ...formData };
 
-    // Push the new form data with answers to the submitted forms list
     submittedForms.push(formWithAnswers);
 
-    // Save the updated list back to localStorage
     localStorage.setItem("submittedForms", JSON.stringify(submittedForms));
 
-    // Trigger the confetti explosion and success message
     setIsConfetti(true);
     setShowSuccessPopup(true);
 
-    // Set a timeout to hide the success popup and redirect to home after a few seconds
     setTimeout(() => {
       setShowSuccessPopup(false);
       router.push("/"); // Redirect to the home page
@@ -199,7 +177,6 @@ const Page = () => {
               disabled={isSubmitting} // Disable the button when submitting
             >
               {isSubmitting ? "Submitting..." : "Submit"}{" "}
-              {/* Show loading text */}
             </button>
           </div>
         </div>
