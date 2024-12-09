@@ -36,7 +36,7 @@ Here are some glimpses of **Happy Forms** in action:
 ### 1. **Form Creation**
 ![Form Creation Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/new-form.png)
 
-### w. **Form Preview**
+### 2. **Form Preview**
 ![Form Preview Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-preview.png)
 
 ### 3. **Form Filling with Progress**
