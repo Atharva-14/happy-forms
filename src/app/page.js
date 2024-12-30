@@ -8,8 +8,6 @@ export default function Home() {
 
   const handleClick = () => {
     setLoading(true); // Start loading
-    console.log("Clicked");
-
     setTimeout(() => {
       router.push("/new-form");
     }, 1000); // Simulate some loading time (adjust as needed)

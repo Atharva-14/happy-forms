@@ -2,18 +2,18 @@
 import FormPreview from "@/components/FormPreview";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Confetti from "react-confetti"; // Importing the confetti package
+import { useToast } from "@/hooks/use-toast";
 
 const Page = () => {
   const [formData, setFormData] = useState(null); // Ensure formData is initially null
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [isConfetti, setIsConfetti] = useState(false); // State to trigger confetti
+
   const [windowWidth, setWindowWidth] = useState(0); // Initial value to 0 to avoid SSR issues
   const [windowHeight, setWindowHeight] = useState(0); // Initial value to 0 to avoid SSR issues
   const [answers, setAnswers] = useState({}); // Store user answers
   const [progress, setProgress] = useState(0); // Store the progress of the form
   const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
   const router = useRouter(); // Initialize router for navigation
+  const { toast } = useToast();
 
   // Update window dimensions on resize
   useEffect(() => {
@@ -90,33 +90,20 @@ const Page = () => {
 
     localStorage.setItem("submittedForms", JSON.stringify(submittedForms));
 
-    setIsConfetti(true);
-    setShowSuccessPopup(true);
+    //Show toast after submitting the form
+    toast({
+      title: "Form Submitted",
+      description:
+        "Your form has been submitted successfully. Redirecting to the home page...",
+    });
 
     setTimeout(() => {
-      setShowSuccessPopup(false);
       router.push("/"); // Redirect to the home page
     }, 6000); // Stay on the page for 6 seconds before redirecting
   };
 
   return (
     <div className="h-screen sm:w-[640px] mx-auto flex flex-col items-center sm:px-4 relative">
-      {/* Confetti Animation */}
-      {isConfetti &&
-        typeof window !== "undefined" && ( // Ensure window is defined before rendering Confetti
-          <Confetti
-            width={windowWidth} // Use dynamic window width
-            height={windowHeight} // Use dynamic window height
-            className="absolute top-0 left-0 z-10"
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          />
-        )}
-
       <header className="w-full bg-white">
         <div className="mx-auto w-full max-w-4xl h-14 border-l border-r border-b flex flex-row justify-between items-center px-6 border-gray-200">
           <label
@@ -155,28 +142,13 @@ const Page = () => {
               ))}
           </div>
 
-          {/* Success Popup */}
-          {showSuccessPopup && (
-            <div className="w-full max-w-lg flex flex-col justify-center items-center bg-blue-800 text-white border-4 border-blue-400 rounded-lg text-lg font-bold p-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-              <div className="text-2xl sm:text-4xl font-extrabold animate__animated animate__zoomIn animate__delay-1s">
-                YOU DID IT!
-              </div>
-              <div className="text-lg sm:text-xl animate__animated animate__fadeIn animate__delay-2s">
-                Your form has been successfully submitted!
-              </div>
-              <div className="mt-2 text-sm sm:text-md animate__animated animate__fadeIn animate__delay-3s">
-                Thank you for completing the task. Redirecting soon...
-              </div>
-            </div>
-          )}
-
           <div className="w-full flex flex-row justify-end items-end gap-2">
             <button
               className="font-semibold text-sm text-center border rounded-2xl py-1.5 px-4 gap-2.5 text-white bg-[#00AA45] border-[#1E874B] shadow-lg"
               onClick={handleSubmit}
               disabled={isSubmitting} // Disable the button when submitting
             >
-              {isSubmitting ? "Submitting..." : "Submit"}{" "}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>

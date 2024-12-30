@@ -1,10 +1,11 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { Toaster } from "@/components/ui/toaster";
 import { Inter } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "700"], 
+  weight: ["400", "500", "700"],
 });
 
 export const metadata = {
@@ -31,6 +32,7 @@ export default function RootLayout({ children }) {
           <Navbar />
         </div>
         {children}
+        <Toaster />
       </body>
     </html>
   );
