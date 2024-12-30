@@ -27,22 +27,25 @@ Welcome to **Happy Forms**, a web application that allows user to create, previe
    - Display a success message upon completing and submitting form.
 
 5. **Interactive UI**:
-   - Soomth animation and feedback on actions enhance the user experience.
+   - Smooth animation and feedback on actions enhance the user experience.
 
 ## Screenshots
 
 Here are some glimpses of **Happy Forms** in action:
 
-### 1. **Form Creation**
+### 1. **Home Page**
+![Form Creation Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/home-page.png)
+
+### 2. **Form Creation**
 ![Form Creation Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/new-form.png)
 
-### 2. **Form Preview**
+### 3. **Form Preview**
 ![Form Preview Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-preview.png)
 
-### 3. **Form Filling with Progress**
+### 4. **Form Filling with Progress**
 ![Form Filling Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-submission.png)
 
-### 4. **Success Message**
+### 5. **Success Message**
 ![Success Message Screenshot](https://github.com/Atharva-14/happy-forms/blob/master/templates/form-submit.png)
 
 **The complete UI of the web app is pixel-perfect and can be accessed seamlessly from any device using [this link](https://happy-forms.vercel.app/).**
@@ -51,6 +54,8 @@ Here are some glimpses of **Happy Forms** in action:
 
 - **Frontend**: Next.js with Tailwind CSS for styling.
 - **Hosting**: Vercel.
+- **Data Handling**: Currently, the form data is saved in the **local storage** of the browser for simplicity.  
+We can integrate this project with an API to store the form data on a server, can easily be updated to include API requests for form persistence and retrieval.
 
 
 ## Getting Started
