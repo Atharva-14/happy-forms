@@ -8,6 +8,8 @@ import {
   useState,
 } from "react";
 import CustomDropdown from "./ui/CustomDropdown";
+import { Switch } from "./ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 const options = [
   {
@@ -255,300 +257,398 @@ const options = [
   },
 ];
 
-const FormBuilder = forwardRef(({ id, questionData = {} }, ref) => {
-  const [selectedOption, setSelectedOption] = useState(() => ({
-    ...(options.find((x) => x.text === questionData?.selectedOption) || {
-      text: "Short answer",
-      icon: (
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M2.5 7.5H10.8333"
-            stroke="#0D0D0D"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M2.5 12.5H17.5"
-            stroke="#0D0D0D"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    }),
-  }));
+const FormBuilder = forwardRef(
+  ({ id, questionData = {}, handleDelete }, ref) => {
+    const [selectedOption, setSelectedOption] = useState(() => ({
+      ...(options.find((x) => x.text === questionData?.selectedOption) || {
+        text: "Short answer",
+        icon: (
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M2.5 7.5H10.8333"
+              stroke="#0D0D0D"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2.5 12.5H17.5"
+              stroke="#0D0D0D"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ),
+      }),
+    }));
 
-  const [radioOptions, setRadioOptions] = useState([
-    {
-      id: Date.now(),
-      text: "Option 1",
-    },
-    {
-      id: Date.now() + 1,
-      text: "Option 2",
-    },
-  ]);
-
-  const [checkOptions, setCheckOptions] = useState([
-    {
-      id: Date.now(),
-      text: "Option 1",
-    },
-    {
-      id: Date.now() + 1,
-      text: "Option 2",
-    },
-  ]);
-
-  // Refs for form fields
-  const titleInputRef = useRef();
-  const helpTextInputRef = useRef();
-  const shortAnsInputRef = useRef();
-  const longAnsInputRef = useRef();
-  const urlInputRef = useRef();
-  const numberInputRef = useRef();
-  const dateInputRef = useRef();
-  const timeInputRef = useRef();
-
-  const handleSelect = (selected) => {
-    setSelectedOption(selected);
-  };
-
-  const handleRadioOptionChange = (e, id) => {
-    const newOptions = radioOptions.map((option) =>
-      option.id === id ? { ...option, text: e.target.value } : option
-    );
-    setRadioOptions(newOptions);
-  };
-
-  const handleAddRadioOption = () => {
-    setRadioOptions([
-      ...radioOptions,
+    const [radioOptions, setRadioOptions] = useState([
       {
         id: Date.now(),
-        text: "",
+        text: "Option 1",
+      },
+      {
+        id: Date.now() + 1,
+        text: "Option 2",
       },
     ]);
-  };
 
-  const handleDeleteRadioOption = (id) => {
-    setRadioOptions(radioOptions.filter((option) => option.id !== id));
-  };
+    const [checked, setChecked] = useState(false);
 
-  const handleSubmit = () => {
-    const formData = {
-      id,
-      title: titleInputRef.current.value,
-      helpText: helpTextInputRef.current.value,
-      selectedOption: selectedOption.text,
+    // Refs for form fields
+    const titleInputRef = useRef();
+    const helpTextInputRef = useRef();
+    const shortAnsInputRef = useRef();
+    const longAnsInputRef = useRef();
+    const urlInputRef = useRef();
+    const numberInputRef = useRef();
+    const dateInputRef = useRef();
+    const timeInputRef = useRef();
+    // const requiredSwitchRef = useRef();
+
+    const { toast } = useToast();
+
+    const handleSelect = (selected) => {
+      setSelectedOption(selected);
     };
 
-    if (selectedOption.text === "Single select") {
-      formData.radioOptions = radioOptions.map((option) => option);
-    }
+    const handleRadioOptionChange = (e, id) => {
+      const newOptions = radioOptions.map((option) =>
+        option.id === id ? { ...option, text: e.target.value } : option
+      );
+      setRadioOptions(newOptions);
+    };
 
-    return formData;
-  };
+    const handleAddRadioOption = () => {
+      setRadioOptions([
+        ...radioOptions,
+        {
+          id: Date.now(),
+          text: "",
+        },
+      ]);
+    };
 
-  useImperativeHandle(ref, () => ({
-    getData: handleSubmit,
-  }));
+    const handleDeleteRadioOption = (id) => {
+      setRadioOptions(radioOptions.filter((option) => option.id !== id));
+    };
 
-  useEffect(() => {
-    if (Object.keys(questionData).length > 0) {
-      titleInputRef.current.value = questionData.title || "";
-      helpTextInputRef.current.value = questionData.helpText || "";
+    const handleCheckChange = () => {
+      setChecked(!checked);
+    };
 
-      // Load existing radio options if present
-      if (questionData.selectedOption === "Single select") {
-        setRadioOptions(questionData.radioOptions || []);
+    const handleSubmit = () => {
+      const formData = {
+        id,
+        title: titleInputRef.current.value,
+        helpText: helpTextInputRef.current.value,
+        selectedOption: selectedOption.text,
+        isRequired: checked,
+      };
+
+      if (selectedOption.text === "Single select" || "Multiple select") {
+        formData.radioOptions = radioOptions.map((option) => option);
       }
-    }
-  }, [questionData]);
 
-  FormBuilder.displayName = "FormBuilder";
+      return formData;
+    };
 
-  return (
-    <div className="w-full  p-4 border rounded-3xl flex flex-col gap-2 border-[#E1E4E8] bg-white">
-      <div className="w-full flex flex-col gap-2">
-        <div className="flex flex-row gap-2 ">
-          <div className="w-full flex flex-col gap-1">
-            <input
-              type="text"
-              id="title"
-              name="title"
-              ref={titleInputRef}
-              placeholder="Write a question"
-              className="font-inter text-sm font-semibold leading-5 text-left focus:outline-none text-gray-1000 w-full"
-            />
-            <input
-              type="text"
-              id="helpText"
-              name="helpText"
-              ref={helpTextInputRef}
-              placeholder="Write a help text or caption (leave empty if not needed)."
-              className="font-inter text-xs font-normal leading-4 text-left focus:outline-none text-gray-1000 w-full"
-            />
-          </div>
+    useImperativeHandle(ref, () => ({
+      getData: handleSubmit,
+    }));
 
-          <div className="flex items-center">
-            <CustomDropdown
-              options={options}
-              onSelect={handleSelect}
-              selOpt={selectedOption}
-            />
-          </div>
+    useEffect(() => {
+      if (Object.keys(questionData).length > 0) {
+        titleInputRef.current.value = questionData.title || "";
+        helpTextInputRef.current.value = questionData.helpText || "";
+        setChecked(questionData.isRequired || false);
 
-          <button className="text-gray-500 cursor-move md:ml-2">
-            <svg
-              width="15"
-              height="16"
-              viewBox="0 0 15 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4.375 3.23828H4.38029M4.375 8.23828H4.38029M4.375 13.2383H4.38029M11.0364 3.23828H11.0417M11.0364 8.23828H11.0417M11.0364 13.2383H11.0417"
-                stroke="rgba(107, 114, 128, var(--tw-text-opacity))"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+        // Load existing radio options if present
+        if (questionData.selectedOption === "Single select") {
+          setRadioOptions(questionData.radioOptions || []);
+        }
+      }
+    }, [questionData]);
 
+    FormBuilder.displayName = "FormBuilder";
+
+    return (
+      <div className="w-full  p-4 border rounded-3xl flex flex-col gap-2 border-[#E1E4E8] bg-white">
         <div className="w-full flex flex-col gap-2">
-          {selectedOption?.text === "Short answer" && (
-            <input
-              id="shortAnswer"
-              name="shortAnswer"
-              ref={shortAnsInputRef}
-              type="text"
-              readOnly
-              className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-            />
-          )}
-
-          {selectedOption?.text === "Long answer" && (
-            <textarea
-              id="longAnswer"
-              name="longAnswer"
-              ref={longAnsInputRef}
-              readOnly
-              className="w-full h-20 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-            />
-          )}
-
-          {selectedOption?.text === "Single select" && (
-            <div className="flex flex-col gap-2">
-              {radioOptions.map((option, index) => (
-                <div key={option.id} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="single-select"
-                    value={option.text}
-                    disabled
-                    className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
-                  />
-                  <input
-                    type="text"
-                    value={option.text}
-                    onChange={(e) => handleRadioOptionChange(e, option.id)}
-                    className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-                  />
-                  {index < radioOptions.length - 1 && (
-                    <button
-                      type="button"
-                      className="text-text-gray-1000 hover:text-red-500"
-                      onClick={() => handleDeleteRadioOption(option.id)}
-                    >
-                      ✕
-                    </button>
-                  )}
-                  {index === radioOptions.length - 1 && (
-                    <button
-                      type="button"
-                      className="text-text-gray-1000 hover:text-[#00AA45]"
-                      onClick={handleAddRadioOption}
-                    >
-                      <svg
-                        width="17"
-                        height="16"
-                        viewBox="0 0 17 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M3.9729 8.00004H8.63957M13.3062 8.00004H8.63957M8.63957 8.00004V3.33337M8.63957 8.00004V12.6667"
-                          stroke="#0D0D0D"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              ))}
+          <div className="flex flex-row gap-2 ">
+            <div className="w-full flex flex-col gap-1">
+              <input
+                type="text"
+                id="title"
+                name="title"
+                ref={titleInputRef}
+                placeholder="Write a question"
+                className="font-inter text-sm font-semibold leading-5 text-left focus:outline-none text-gray-1000 w-full"
+              />
+              <input
+                type="text"
+                id="helpText"
+                name="helpText"
+                ref={helpTextInputRef}
+                placeholder="Write a help text or caption (leave empty if not needed)."
+                className="font-inter text-xs font-normal leading-4 text-left focus:outline-none text-gray-1000 w-full"
+              />
             </div>
-          )}
 
-          {selectedOption?.text === "URL" && (
-            <input
-              id="url"
-              name="url"
-              ref={urlInputRef}
-              type="url"
-              readOnly
-              className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-            />
-          )}
+            <div className="flex items-center">
+              <CustomDropdown
+                options={options}
+                onSelect={handleSelect}
+                selOpt={selectedOption}
+              />
+            </div>
 
-          {selectedOption?.text === "Number" && (
-            <input
-              id="number"
-              name="number"
-              ref={numberInputRef}
-              type="number"
-              readOnly
-              className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-            />
-          )}
+            <button className="text-gray-500 cursor-move md:ml-2">
+              <svg
+                width="15"
+                height="16"
+                viewBox="0 0 15 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.375 3.23828H4.38029M4.375 8.23828H4.38029M4.375 13.2383H4.38029M11.0364 3.23828H11.0417M11.0364 8.23828H11.0417M11.0364 13.2383H11.0417"
+                  stroke="rgba(107, 114, 128, var(--tw-text-opacity))"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
 
-          {selectedOption?.text === "Date" && (
-            <input
-              id="date"
-              name="date"
-              ref={dateInputRef}
-              type="date"
-              readOnly
-              className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-            />
-          )}
+          <div className="w-full flex flex-col gap-2">
+            {selectedOption?.text === "Short answer" && (
+              <input
+                id="shortAnswer"
+                name="shortAnswer"
+                ref={shortAnsInputRef}
+                type="text"
+                readOnly
+                className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+              />
+            )}
 
-          {selectedOption?.text === "Time" && (
-            <input
-              id="time"
-              name="time"
-              ref={timeInputRef}
-              type="time"
-              readOnly
-              className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
-            />
-          )}
+            {selectedOption?.text === "Long answer" && (
+              <textarea
+                id="longAnswer"
+                name="longAnswer"
+                ref={longAnsInputRef}
+                readOnly
+                className="w-full h-20 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+              />
+            )}
+
+            {selectedOption?.text === "Single select" && (
+              <div className="flex flex-col gap-2">
+                {radioOptions.map((option, index) => (
+                  <div key={option.id} className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="single-select"
+                      value={option.text}
+                      disabled
+                      className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
+                    />
+                    <input
+                      type="text"
+                      value={option.text}
+                      onChange={(e) => handleRadioOptionChange(e, option.id)}
+                      className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+                    />
+                    {index < radioOptions.length - 1 && (
+                      <button
+                        type="button"
+                        className="text-text-gray-1000 hover:text-red-500"
+                        onClick={() => handleDeleteRadioOption(option.id)}
+                      >
+                        ✕
+                      </button>
+                    )}
+                    {index === radioOptions.length - 1 && (
+                      <button
+                        type="button"
+                        className="text-text-gray-1000 hover:text-[#00AA45]"
+                        onClick={handleAddRadioOption}
+                      >
+                        <svg
+                          width="17"
+                          height="16"
+                          viewBox="0 0 17 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3.9729 8.00004H8.63957M13.3062 8.00004H8.63957M8.63957 8.00004V3.33337M8.63957 8.00004V12.6667"
+                            stroke="#0D0D0D"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {selectedOption?.text === "Multiple select" && (
+              <div className="flex flex-col gap-2">
+                {radioOptions.map((option, index) => (
+                  <div key={option.id} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      name="multiple-select"
+                      value={option.text}
+                      disabled
+                      className="h-4 w-4 focus:outline-none focus:ring-2 focus:ring-light"
+                    />
+                    <input
+                      type="text"
+                      value={option.text}
+                      onChange={(e) => handleRadioOptionChange(e, option.id)}
+                      className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+                    />
+                    {index < radioOptions.length - 1 && (
+                      <button
+                        type="button"
+                        className="text-text-gray-1000 hover:text-red-500"
+                        onClick={() => handleDeleteRadioOption(option.id)}
+                      >
+                        ✕
+                      </button>
+                    )}
+                    {index === radioOptions.length - 1 && (
+                      <button
+                        type="button"
+                        className="text-text-gray-1000 hover:text-[#00AA45]"
+                        onClick={handleAddRadioOption}
+                      >
+                        <svg
+                          width="17"
+                          height="16"
+                          viewBox="0 0 17 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3.9729 8.00004H8.63957M13.3062 8.00004H8.63957M8.63957 8.00004V3.33337M8.63957 8.00004V12.6667"
+                            stroke="#0D0D0D"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {selectedOption?.text === "URL" && (
+              <input
+                id="url"
+                name="url"
+                ref={urlInputRef}
+                type="url"
+                readOnly
+                className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+              />
+            )}
+
+            {selectedOption?.text === "Number" && (
+              <input
+                id="number"
+                name="number"
+                ref={numberInputRef}
+                type="number"
+                readOnly
+                className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+              />
+            )}
+
+            {selectedOption?.text === "Date" && (
+              <input
+                id="date"
+                name="date"
+                ref={dateInputRef}
+                type="date"
+                readOnly
+                className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+              />
+            )}
+
+            {selectedOption?.text === "Time" && (
+              <input
+                id="time"
+                name="time"
+                ref={timeInputRef}
+                type="time"
+                readOnly
+                className="w-full h-8 px-2 py-1.5 gap-2.5 border rounded-lg bg-white border-[#E1E4E8] focus:outline-none "
+              />
+            )}
+          </div>
+
+          <div className="w-full gap-3 flex items-center justify-end p-2.5">
+            <button onClick={() => handleDelete(id)}>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 6H5H21"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M19 6V19C19 20.1046 18.1046 21 17 21H7C5.89543 21 5 20.1046 5 19V6M10 6V4C10 3.44772 10.4477 3 11 3H13C13.5523 3 14 3.44772 14 4V6M14 10V17M10 10V17"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+
+            <div className="w-fit flex items-center gap-2">
+              <label
+                htmlFor={id}
+                className="font-inter text-sm font-normal leading-4 text-left focus:outline-none text-gray-1000 select-none"
+              >
+                Required
+              </label>
+              <Switch
+                name="required"
+                id={id}
+                checked={checked}
+                onCheckedChange={handleCheckChange}
+              />
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 export default FormBuilder;

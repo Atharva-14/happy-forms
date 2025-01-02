@@ -49,7 +49,7 @@ const Page = () => {
 
   const handleAddQuestion = () => {
     const newId = Date.now().toString();
-    const newFormBuilder = { id: newId, questionData: {} };
+    const newFormBuilder = { id: newId, questionData: { isRequired: false } };
     setFormBuilders((prev) => [...prev, newFormBuilder]);
     formBuilderRefs.current.push(React.createRef());
   };
@@ -63,6 +63,7 @@ const Page = () => {
 
     const updatedAllData = formBuilderRefs.current.map((formBuilderRef) => {
       if (formBuilderRef.current) {
+        console.log("formBuilders", formBuilderRef.current.getData());
         return formBuilderRef.current.getData();
       }
       return null;
@@ -161,6 +162,13 @@ const Page = () => {
     }
   };
 
+  const handleDeleteQuestion = (id) => {
+    setFormBuilders((prev) => prev.filter((builder) => builder.id !== id));
+    toast({ title: "Question Deleted", variant: "destructive" });
+  };
+
+  // console.log("formBuilders", formBuilders);
+
   const isDisabled = formBuilders.length === 0;
 
   return (
@@ -209,10 +217,6 @@ const Page = () => {
                 strokeLinejoin="round"
               />
             </svg>
-
-            {/* <MdOutlineArrowOutward
-              className={isPreviewDisabled ? "text-gray-400" : "text-gray-900 "}
-            /> */}
           </button>
         </div>
       </header>
@@ -229,6 +233,7 @@ const Page = () => {
                   (formBuilderRefs.current[index] = React.createRef())
                 }
                 questionData={formBuilder.questionData}
+                handleDelete={handleDeleteQuestion}
               />
             </div>
           ))}
